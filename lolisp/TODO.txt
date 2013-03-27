@@ -1,0 +1,13 @@
+Date: Mar 17, 2013
+
+- Remaining commands from Chapter 7 have been added to the end of
+  lispcommands.txt.  Some of them I don't know terribly well - I need to
+  experiment with them, and write each one of them up.
+- The graphviz stuff worked only partially when I tried it - I should try out
+  the library that I have typed, and figure out what is going wrong, and what
+  isn't.
+- That will take care of Ch.7 - next on to Ch.8 and Grand Theft Wumpus!
+
+Ultimately, I want to finish the book, entering all the examples, and create a
+command summary of what I have learned, created after exploring each command.
+After all that is finished, I may extend some of the games that I like.

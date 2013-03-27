@@ -1,0 +1,550 @@
+(load "myfile")
+
+    Used in a REPL to execute the code in the given file.  All variables and
+    functions defined in the file will now be in the environment.  The suffix
+    .lisp is assumed, so the command above looks for "myfile.lisp". (p18)
+
+(defparameter *small* 1)
+
+    Assigns the value 1 to the variable *small*.  By convention, global
+    variables are given variable names surrounded by "earmuffs", i.e.
+    asterisks. (p23)
+
+(defvar *foo* 5)
+
+    Assigns the value 5 to the variable *foo*.  The difference between
+    defparameter and defvar is that defvar never overwrites previous values of
+    a variable. (p24)
+
+(defun add1 (a)
+    (+ a 1))
+
+    defun is used to define a new function.  It is followed by the function
+    name, then a list of argument names, then the function body.  The argument
+    list is sometimes the empty list (). (p25)
+
+(setf *big* 50)
+
+    Sets an already existing variable to a new value. (p27)
+
+(let ((a 5) (b 6)) (+ a b))
+
+    Creates local bindings in the cadr, and uses them to evaluate the
+    statements in the cddr. (p28)
+
+(flet ((f (n) (+ n 10))
+       (g (n) (+ n 5)))
+    (f (g 6)))
+
+    Similar to let, but works with functions.  The cadr is a list of function
+    definitions - each one has function name, list of parameters, function
+    body.  The cddr is the body to be evaluated with access to the bound
+    functions.  This is similar to the 'let' expression in Racket. (p29)
+
+(labels ((fact (n) (cond ((= n 0) 1) (t (* n (fact (- n 1)))))))
+    (f 10))
+
+    Identical to flet, but also allows calling the labeled functions from
+    other (or the same) labeled functions.  This is required to achieve
+    recursion.  Similar to 'letrec' in Racket. (p29)
+
+'(a b c)
+
+    Construct a list in DATA MODE.  The quotes mean that every member of the
+    list will be quoted, including the first element (which will otherwise be
+    treated as a function name).  So in this example, you get a list of three
+    symbols, 'a, 'b, and 'c. (p37)
+
+(cons 'chicken 'cat)
+
+    Creates a paired list, which will be represented as (CHICKEN . CAT).  Note
+    the dot.  This is not a proper list, because proper lists always have a
+    NIL at the end of the list. (p39)
+
+(cons 'a NIL)
+(cons 'a (cons 'b NIL))
+
+    Both statements create proper lists.  The first will be ('a), the second
+    will be ('a 'b).  Cons adds the first argument to the left side of the
+    list in the second argument.  Notice that there are no dots in the lisp
+    representation. (p39)
+
+(car '(a b c))
+(cdr '(a b c))
+
+    car returns the first element of a list (or pair).  cdr returns a list of
+    all elements EXCEPT the first element.  For a simple non-list pair, the
+    second element is returned (not necessarily a list).  For a single element
+    list, NIL is returned.  cdr and car applied to NIL returns NIL. (p40)
+
+(list a b c)
+
+    list is a function that creates a list (ending with a NIL) containing the
+    other arguments of the function.  This one returns '(a b c). (p41)
+
+(cdar lst)
+(caddr list)
+
+    There are several functions definded with c followed by 1-4 letters, each
+    one either a or d, and ending with an r.  These are nested car and cdr
+    functions.  Apply car (for an a) and cdr (for a d) from right to left.  So
+    for these two examples, (cdar lst) is the same as (cdr (car lst)), and
+    (caddr lst) is equivalent to (car (cdr (cdr lst))).  (p42)
+
+'()
+()
+'nil
+nil
+
+    These are the four disguises of (), the empty list.  They all evaluate to
+    false, or NIL, and are the only thing that evaluate to NIL.  This
+    behaviour leads to all sorts of interesting lisp idioms. (p51)
+
+(if (= 1 2) 'yup 'nope)
+
+    A simple conditional branch, a little simpler than the cond statement.
+    Only the branch that is executed ever gets evaluated, so you can do silly
+    stuff like dividing by zero, and the compiler/interpreter won't care.
+    (p52)
+
+(progn (setf a 5) (setf b 3) 'c)
+
+    Use progn to cram in several statements where you would normally only
+    expect one.  Only the result of the last expression in the list is
+    actually used, the other statements are only useful for the side-effects
+    that they have, such as those of setf and princ. (p54)
+
+(when (oddp 5)
+      (setf *number-is-odd* t)
+      'odd-number)
+
+    Evaluates the first expression, then if it is T, evaluates all other
+    expressions in the list similar to a progn, returning the result of the
+    last expression.  If the first statement evaluates to NIL, the rest of
+    the list is ignored, and NIL is returned. (p55)
+
+(unless (oddp 5)
+        (setf *number-is-even* t)
+        'even-number)
+
+    Evaluates the first expression, then if it is NIL, evaluates all other
+    expressions in the list similar to a progn, returning the result of the
+    last expression.  If the first statement evaluates to T, the rest of
+    the list is ignored, and NIL is returned. (p55)
+
+(cond ((eq c 5) 35)
+      ((eq b 49) 32)
+      (t 483))
+
+    The cond keyword is followed by any number of sublists.  The sublists are
+    evaluated in order.  If the car of the first sublist evaluates to T, the
+    cdr expression(s) of that sublist are evaluated, and the other sublists
+    are skipped.  If the car evaluates to NIL, the next sublist is evaluated
+    similarly.  It is convention for the car of the last sublist to be T to
+    guarantee that the cond expression will run something. (p56)
+
+(case person
+    ((henry) '(hello henry, buddy! how are you doing?))
+    ((bobby) '(whats happenin bobby?))
+    (otherwise '(hello, stranger!)))
+
+    This works like the cond statement, but works when you are conditioning on
+    different possibilites for a symbol.  Note that you don't put the argument
+    (person in this case) in parens, and the symbols ARE put in parens, and
+    don't need a quote to put them in data mode. (p57)
+
+(and (oddp 5) (princ "it is odd"))
+
+    The and statement accepts multiple arguments.  It evaluates each one until
+    it finds one that is false, then it returns NIL and skips the rest of the
+    arguments.  If ALL arguments evaluate to T, The and statement will return
+    T.  Notice that and is often used as a "steath conditional", as the latter
+    statements are only evaluated if the first statement evaluates to T. (p58)
+
+(or (oddp 5) (princ "it is not odd"))
+
+    The or statement also accepts multiple arguments.  It evaluates each one
+    until it finds one that is true, then it returns T and skips the rest of
+    the arguments.  If ALL arguments evaluate to NIL, the or statement will
+    return NIL.  Like "and", the "or" statement is a "stealth conditional", as
+    the latter statements are only evaluated if the first statement evaluates
+    to NIL. (p59)
+
+(member 1 '(3 4 1 5 1))
+
+    Returns NIL if the first argument is not in the second argument list.  If
+    the item IS found, member returns the sublist starting with the first
+    occurence of that number.  In the above example, the returned value is
+    '(1 5 1).  You can use this function somewhere where you require a
+    predicate, since the returned list is non NIL, and will evaluate the same
+    as T. (p60)
+
+(find-if #'oddp '(2 4 5 6))
+
+    find-if is a higher order function which takes a predicate, and a list,
+    and it returns the first element of the list which satisfies the
+    predicate.  If no such element is found, the result is NIL.  In this case,
+    the function oddp is the predicate (use #' before a function name to use a
+    function as an argument), and the first odd element of the list is 5, and
+    that is what is returned.  This function can be used in the condition of
+    a cond or if statement (where you only care about whether NIL is returned
+    or not), or to actually fetch the value that causes the predicate to be
+    true. (p61)
+
+(eq 'abc 'abc)
+
+    Compares two items, returns T if they are the same, NIL if they are not.
+    In practice, the eq command is only used to compare symbols, but it is
+    very fast. (p63)
+
+(equal (4 'a (1 2 3)) (4 'a (1 2 3)))
+
+    Compares two S-expressions, returns T if they are the same, NIL if they
+    are not.  This is a general purpose equality which works on anything, but
+    it isn't as fast as eq, so don't use it to compare known symbols. (p63)
+
+(assoc 'a '((b 5) (c) (a 1 2 3) (d 2)))
+
+    Takes two arguments, a value, and a list of lists.  Returns the first
+    element of the list of lists whose car is equal to the value argument.
+    The entire list is returned.  In the example above, '(a 1 2 3) would be
+    returned (p71, p112)
+
+`(there is a ,(caddr edge) going ,(cadr edge) from here)
+
+    This is quasiquoting.  To put a list in data mode, you use a backtick
+    instead of a regular quote, then to insert a code element, put a comma
+    just before the element to "temporarily" switch into code mode for that
+    single element.  Here the backtick converts everything into data except
+    (caddr edge) and (cadr edge) which are "flipped back" by the commas. (p73)
+
+(mapcar #'sqrt '(1 4 9 16 25))
+
+    mapcar is the main mapping function in Common Lisp.  The second argument
+    is a function, and the third argument is a list, and the result will be a
+    list of the same size where each element is equal to the function applied
+    to the corresponding element of the original list.  In this example, the
+    function returns '(1 2 3 4 5). (p74)
+
+(append '(1) '(2 3) '(4 5 6))
+
+    Accepts several lists as arguments, and returns the result of appending
+    all of their elements in order.  The NILs at the ends of the lists (except
+    the last) are discarded.  So in the example, the returned value is the
+    list '(1 2 3 4 5 6).  (p76)
+
+(apply #'+ '(1 2 3 4 5))
+
+    When you have a function that accepts several parameters, and you have a
+    list containing several arguments that you want to pass to that function,
+    you cannot just pass the list to the function.  If you do that, it will
+    treat the whole list as a single argument.  Instead, use the apply
+    function, and pass the function as a second argument, and the list as a
+    third argument.  The list will be "broken up", and the elements passed as
+    separate arguments to the function.  Often used to get a sum of a list (as
+    above - the answer will be 15), or appending a list of lists together.
+    (p76)
+
+(remove-if-not #'oddp '(1 2 3 4 5 6 7))
+
+    This is the classic higher-order filter function.  The first argument is a
+    predicate, and the second argument is a list.  All elements that do not
+    satisfy the predicate are removed.  In the example, the result is
+    '(1 3 5 7). (p78)
+
+(find 2 '(9 3 4 6 8) :key #'sqrt)
+(find 'a '((6 'c) (7 'd) (8 'a) (9 'b)) :key #'cadr)
+
+    The find command accepts two arguments, a value, and a list.  It looks
+    through the list and returns the first element that matches the value.
+    However, you can pass it a keyword parameter, :key followed by a function,
+    just after the list to specify a function to be applied to the elements
+    for the purposes of checking.  Essentially, the function is mapcar'ed to
+    the list, and find figures out the index of the first element matching the
+    value, then returns the corresponding element of the original list.  In
+    the first example, sqrt(4) = 2 which is the value, so the result is 4.  In
+    the second example, the cadr of '(8 'a) is 'a, matching the value, so the
+    returned result is '(8 'a). (p81)
+
+(defparameter *foo* '(1 2 3))
+(push 7 *foo*)
+
+    The push command mutates an existing list by consing a value to the
+    original list, and reassigning the variable to the new list.  In the
+    example, the variable *foo* is changed to '(7 1 2 3). This is often used
+    in conjunction with assoc to add/replace a value in the alist - more
+    recent versions will be to the left of older versions, and will get picked
+    up earlier by the assoc command. (p82, p112)
+
+(print "Hello")
+(prin1 "Hello")
+
+    COMPUTER -> COMPUTER
+    The "print" command displays the value of the second argument to the
+    screen.  It will be in its native lisp format, so the commands above will
+    print "Hello" (with quotation marks).  The print command inserts a line
+    feed after the token is printed, the prin1 command does not. (p88)
+
+(read)
+
+    COMPUTER -> COMPUTER
+    Prompts the user to enter something followed by the ENTER key, and returns
+    the thing that was typed, which must be a legal lisp expression, after
+    wrapping it in the quote function.  So if the user types ABC, the result
+    will be 'ABC, and if the user types (a b), the result will be '(A B).
+    Note that (print (read)) always returns what was typed (as long as it was
+    a legal lisp expression), because the expression stayed machine-readable
+    and print, read are essentially inverses of one another. (p88)
+
+(princ "Hello")
+
+    COMPUTER -> HUMAN
+    This works like the "print" command, except it prints in a human-readable
+    format.  To the string "Hello" will be printed WITHOUT quotation marks in
+    the example above.  Also, a linefeed is not inserted afterwards - use
+    (princ #\linefeed) to do that.  Note that data that is sent to the screen
+    with princ cannot be easily translated back into a lisp string, because it
+    is no longer in machine-readable format (unlike output from print). (p90)
+
+(read-line)
+
+    HUMAN -> COMPUTER
+    Prompts the user to enter something followed by the ENTER key, and returns
+    the thing that was typed, wrapped by double-quotes, as a string.  This
+    converts human-readable typing into computer-readable strings.  Note that
+    this is NOT the inverse of princ - for example, typed numbers are still
+    returned as strings. (p91)
+
+(eval '(+ 3 4))
+
+    Accepts as an argument an array in datamode, then evaluates it when
+    converted to code mode, i.e. the quote just before the array (the one that
+    prevents the first argument from being evaluated as a function) is
+    removed, and the expression is subsequently evaluated. (p92)
+
+(concatenate 'string "Hello," " " "World" ".")
+
+    The concatenate function in general takes numerous sequences, and creates
+    a single sequence that has all elements from all of the sequences.
+    However, it works differently for different data types, so you need to
+    specify the "sequence type specifier" as the first argument, and all
+    subsequent arguments will be the lists that you want to patch together.
+    'string is a common specifier used to connect strings together.  Also
+    possible is 'list, which works with any list. (p95)
+
+(read-from-string "(+ 2 3)")
+
+    Accepts a string as its argument, and returns the contents of the string
+    expressed as lisp data.  In other words, it strips off the double quotes,
+    and then quotes the result.  If the string is a valid lisp expression, you
+    can evaluate it with the eval command. (p95)
+
+(list 'quote x)
+
+    Evaluates the variable x, then puts a quote in front of it to turn it into
+    a symbol.  Had you tried instead (quote x), then the symbol 'x would have
+    been returned. The expression above is a key idiom - you can use it as the
+    body of a function to return the argument with an extra quote in front of
+    it. (p95)
+
+#\"
+#'sqrt
+
+    Use #\ to prefix a character literal, and #' to prefix a function literal.
+    (p98)
+
+(char-upcase #\h)
+(char-downcase #\H)
+
+    These functions operate on a single character, and convert them to
+    uppercase or lowercase characters respectively.  The function does not
+    affect characters other than a-zA-Z. (p98)
+
+(coerce '(#\H #\e #\l #\l #\o) 'string)
+(coerce "Hello" 'list)
+
+    The coerce function takes two arguments, an object, and a result-type.  It
+    will try to create a value of the result-type that resembles the object if
+    it knows how to make that particular type conversion.  In this case, we
+    convert from a character list to a string, using the 'string symbol (first
+    line), and then back from a string to a character list using the 'list
+    symbol (second line). (p98)
+
+(fresh-line)
+
+    This command will print a newline to output as long as you aren't already
+    on a new line, in which case it does nothing.  So if you use this command
+    several times in a row, it will add at most one newline.  (p98)
+
+(prin1-to-string '(a b c d e))
+
+    The prin1-to-string command evaluates its argument, then slaps two double
+    quotes around the result, and returns it as a string.  It is the same as
+    prin1, except it prints to a string instead of to the screen. (p98)
+
+(setf *print-circle* t)
+(defparameter foo '(1 2 3))
+(setf (cdddr foo) foo)
+
+    This is a set of commands that you can enter to create a circular list.
+    You need to type the first command in order to make LISP print your lists
+    in a non-infinite way - it sets a system variable.  Once the list is
+    created in line 2, use line 3 to manually set one of the cdrs to the list
+    itself, and create the loop. (p111)
+
+(substitute-if #\e #'digit-char-p "I'm a l33t hack3r!")
+(substitute-if 0 #'oddp '(1 2 3 4 5 6))
+
+    Accepts three arguments, an element, a predicate, and a sequence.
+    substitute-if will run the predicate on all items of the sequence, and
+    each one found to match the predicate will be replaced by the given
+    element.  In the first case above, substitute-if replaces elements of a
+    string with the given character 'e', returning "I'm a leet hacker!".  In
+    the second case, it replaces items of a list with the given number 0,
+    returning '(0 2 0 4 0 6). (p116)
+
+(complement #'oddp)
+
+    The complement function accepts a predicate, and returns a function which
+    is true when the predicate is false, and false when the predicate is true.
+    This is considered better than having a lot of 'not' predicate functions
+    built in.  In this case, the complement function will return a predicate
+    that is true for even numbers. (p117)
+
+(write-to-string '(a b c) :pretty nil)
+
+    The write-to-string function simply creates a string representation of an
+    object, and returns it.  It takes several possible keyword parameters,
+    including :pretty.  If you set :pretty to nil, the function will add the
+    absolute minimum of whitespace, if you don't, it is possible the string
+    may have extra whitespace added to make it look better. (p117)
+
+(subseq "Hello, World" 7 12)
+
+    Creates a subsequence of the given sequence.  The first argument is the
+    string, the second and third elements are the start and end index of the
+    substring (start inclusive, end exclusive).  In the example, the string
+    "World" is returned.  This will work with other sequences as well, notably
+    lists. (p117)
+
+(mapc #'my-side-effect-function '(1 2 3 4 5))
+
+    mapc works the same as mapcar, but it returns the original list instead of
+    the transformed list.  It applies the given function to each element of
+    the list, but since it discards the result, only the side-effects of the
+    function actually do anything.  Instead of the transformed array, the
+    original array is returned. (p118)
+
+(ext:shell "ls -lah")
+
+    The ext:shell command accepts one string argument.  It drops to shell,
+    executes the given string as a shell command, then returns to LISP, prints
+    the result of the shell command, and then moves on to the next command,
+    handing the control back to lisp.  Use this command to kick off other
+    programs from within the REPL, or from within a LISP program. (p120)
+
+(with-open-file (*standard-output*
+                 fname
+                 :direction :output
+                 :if-exists :supersede)
+    (princ "Hello File"))
+
+(with-open-file (my-stream
+                 fname
+                 :direction :output
+                 :if-exists :supersede)
+    (princ "Hello File" my-stream))
+
+    with-open-file is Lisp's standard way of writing things to a file.  The
+    first parameter accepts a list with information to set up the stream.  The
+    rest of the parameters are additional functions, some of which will
+    probably write to the file.  The first element of the info list is the
+    'stream' that other commands can write (or read) to, to access the file.
+    The second item is the file name (string).  After that, you can specify
+    keyword parameters, with the ones above being very common (first one
+    specifies writing, the second one specifies replacement).  In the first
+    case, the stream is a pre-defined one, *standard-output*.  Anything that
+    normally goes to standard output will now go to the file.  In the second
+    case, a new stream called 'my-stream' is created, and you can print to it
+    by using it as an argument to certain functions, such as princ in this
+    example. (p120)
+
+(defparameter lamb (lambda (n) (/ n 2)))
+
+    lambda creates an anonymous function.  The first argument is a list of
+    parameter names, the following arguments are the body of the function,
+    which get evaluated in order, and the last evaluated argument is returned.
+    (p103)
+
+(funcall lamb 6)
+(funcall #'oddp 5)
+
+    When you create a function using the defun command, you invoke it by
+    enclosing it along with its parameters with parentheses.  However, when
+    you assign an anonymous function to a variable ('lamb' in the example),
+    the variable is in the variable namespace, not the function namespace, so
+    to invoke it, you have to use the funcall function.  It accepts the
+    variable holding the anonymous function as its first argument, and the
+    function arguments right afterwards.  Essentially #' converts a function
+    into variable form, and (funcall) converts a variable into function form.
+    (p120)
+
+:cigar
+
+    A variable name that starts with a colon is a symbol.  A symbol never
+    actually holds a value, it is itself a value.  It is similar to data
+    symbols, like 'cigar, but :cigar actually has meaning in code mode.  It
+    can be used like enumerated values, especially as options for keyword
+    arguments to a function. (p122)
+
+(maplist #'cdr '(a b c))
+
+    maplist works exactly like mapcar, except instead of passing each element
+    to the function, the whole list starting from that element is passed.  So
+    in this example, for the first element, the list '(a b c) is passed to
+    cdr, for the second element '(b c) is passed, and for the last element
+    '(c) is passed.  So the result of this function call is '((b c) (c) NIL).
+    (p125)
+
+(loop repeat 10 collect 'a)
+
+    loop/repeat/collect is one form of the loop command.  The format is:
+    (loop repeat n collect e) and it evaluates e n-times, collecting the
+    results of the evaluation in a list.  In most cases, this will be n
+    identical copies of the result of a, but it is quite common to include a
+    statement (or statements if you use progn) for side effects, and ignore
+    the resulting list.  In the case above, the result is:
+    '(a a a a a a a a a a). (p135)
+
+(random 5)
+
+    random n will choose an integer randomly between 0 (inclusive) and n
+    (exclusive) using discrete uniform distribution.  In this case, the
+    generated integer will be one of 0,1,2,3,4 each having a 20% chance.
+    Interestigly, you can also provide a real number, and the result will be a
+    continuous uniformly chosen number between 0 and the provided real number
+    (p135).
+
+(1+ 7)
+
+    The 1+ function simply adds one to the argument (integer or real). (p135)
+    
+(loop for n from 1 to 10 collect n)
+
+    Use loop/for/from/to/collect when you want to use the index number to help
+    construct the elements of the list.  In the case above, the collect
+    argument is put directly in the resulting list.  The result will be
+    '(1 2 3 4 5 6 7 8 9 10) because the from and to arguments are inclusive.
+    (p137)
+
+let* (p138)
+set-difference (p138)
+zerop random <idiom> (p139)
+remove-duplicates (p139)
+intersection (p140)
+some (p143)
+loop for below (p143)
+mapcan (p147)
+not (p149)
+pushnew (p149)
+
