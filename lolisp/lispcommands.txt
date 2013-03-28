@@ -531,11 +531,11 @@ nil
     
 (loop for n from 1 to 10 collect n)
 
-    Use loop/for/from/to/collect when you want to use the index number to help
-    construct the elements of the list.  In the case above, the collect
-    argument is put directly in the resulting list.  The result will be
-    '(1 2 3 4 5 6 7 8 9 10) because the from and to arguments are inclusive.
-    (p137)
+    Use loop/for/from/to/collect when you want to use the index number
+    to help construct the elements of the list.  In the case above, the
+    collect argument is put directly in the resulting list.  The result
+    will be '(1 2 3 4 5 6 7 8 9 10) because the from and to arguments
+    are inclusive. (p137)
 
 let* (p138)
 set-difference (p138)
